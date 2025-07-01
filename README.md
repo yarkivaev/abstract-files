@@ -21,28 +21,42 @@ dependencies:
 {-# LANGUAGE OverloadedStrings #-}
 
 import File
-import Local ()
+import Local (localFileOps)
 import qualified Data.ByteString.Char8 as BS
 
 main :: IO ()
 main = do
-  let file = RelativeFile (Folder ["data"]) (FileName "example.txt")
-  save ("Hello, World!" :: BS.ByteString) file
-  content <- load file
+  let file = File (Folder ["data"]) (FileName "example.txt")
+  let ops = localFileOps
+  saveFile (saveOps ops) ("Hello, World!" :: BS.ByteString) file
+  content <- loadFile (loadOps ops) file
   BS.putStrLn content
 ```
 
 ## Core Types
 
 ```haskell
-data File = RelativeFile Folder FileName 
-          | AbsoluteFile Folder FileName
+data File = File Folder FileName
 
-class Monad m => SaveFile m content where
-  save :: content -> File -> m ()
+-- Capability records
+data SaveOps m content = SaveOps
+  { saveFile :: content -> File -> m ()
+  }
 
-class Monad m => LoadFile m content where
-  load :: File -> m content
+data LoadOps m content = LoadOps
+  { loadFile :: File -> m content
+  }
+
+data DeleteOps m = DeleteOps
+  { deleteFile :: File -> m ()
+  }
+
+-- Combined operations
+data FileOps m content = FileOps
+  { saveOps   :: SaveOps m content
+  , loadOps   :: LoadOps m content
+  , deleteOps :: DeleteOps m
+  }
 ```
 
 ## Building

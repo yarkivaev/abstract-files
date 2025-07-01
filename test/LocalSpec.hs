@@ -10,7 +10,7 @@ import Control.Exception (try, SomeException)
 import qualified Data.ByteString as BS
 
 import File
-import Local ()
+import Local (localFileOps)
 
 spec :: Spec
 spec = do
@@ -25,13 +25,13 @@ spec = do
           let content = "Hello, World!" :: BS.ByteString
           let fileName = FileName "test.txt"
           let folder = Folder ["subdir"]
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Save the file
-          save content file
+          saveFile (saveOps localFileOps) content file
           
           -- Load the file
-          loaded <- load file
+          loaded <- loadFile (loadOps localFileOps) file
           loaded `shouldBe` content
           
           -- Verify file exists at expected location
@@ -41,23 +41,30 @@ spec = do
           -- Restore original directory
           setCurrentDirectory originalDir
 
-      it "saves and loads a ByteString to an absolute file" $ do
+      it "saves and loads a ByteString to a file in different directory" $ do
         withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
-          let content = "Absolute path test" :: BS.ByteString
-          let fileName = FileName "absolute-test.txt"
-          let folder = Folder [tmpDir, "absolute-subdir"]
-          let file = AbsoluteFile folder fileName
+          -- Change to temp directory
+          originalDir <- getCurrentDirectory
+          setCurrentDirectory tmpDir
+          
+          let content = "Different dir test" :: BS.ByteString
+          let fileName = FileName "test.txt"
+          let folder = Folder ["different", "subdir"]
+          let file = File folder fileName
           
           -- Save the file
-          save content file
+          saveFile (saveOps localFileOps) content file
           
           -- Load the file
-          loaded <- load file
+          loaded <- loadFile (loadOps localFileOps) file
           loaded `shouldBe` content
           
           -- Verify file exists at expected location
-          exists <- doesFileExist $ tmpDir </> "absolute-subdir" </> "absolute-test.txt"
+          exists <- doesFileExist $ "different" </> "subdir" </> "test.txt"
           exists `shouldBe` True
+          
+          -- Restore original directory
+          setCurrentDirectory originalDir
 
       it "creates nested directories when saving" $ do
         withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
@@ -68,21 +75,21 @@ spec = do
           let content = "Nested directory test" :: BS.ByteString
           let fileName = FileName "nested.txt"
           let folder = Folder ["level1", "level2", "level3"]
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Directory should not exist initially
           exists <- doesDirectoryExist "level1/level2/level3"
           exists `shouldBe` False
           
           -- Save the file
-          save content file
+          saveFile (saveOps localFileOps) content file
           
           -- Directory should now exist
           exists' <- doesDirectoryExist "level1/level2/level3"
           exists' `shouldBe` True
           
           -- File should exist and have correct content
-          loaded <- load file
+          loaded <- loadFile (loadOps localFileOps) file
           loaded `shouldBe` content
           
           -- Restore original directory
@@ -98,16 +105,16 @@ spec = do
           let content2 = "New content" :: BS.ByteString
           let fileName = FileName "overwrite.txt"
           let folder = Folder []
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Save first version
-          save content1 file
-          loaded1 <- load file
+          saveFile (saveOps localFileOps) content1 file
+          loaded1 <- loadFile (loadOps localFileOps) file
           loaded1 `shouldBe` content1
           
           -- Save second version
-          save content2 file
-          loaded2 <- load file
+          saveFile (saveOps localFileOps) content2 file
+          loaded2 <- loadFile (loadOps localFileOps) file
           loaded2 `shouldBe` content2
           
           -- Restore original directory
@@ -122,13 +129,13 @@ spec = do
           let content = BS.empty
           let fileName = FileName "empty.txt"
           let folder = Folder ["empty-test"]
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Save empty file
-          save content file
+          saveFile (saveOps localFileOps) content file
           
           -- Load empty file
-          loaded <- load file
+          loaded <- loadFile (loadOps localFileOps) file
           loaded `shouldBe` content
           
           -- Verify file exists but is empty
@@ -149,11 +156,11 @@ spec = do
           let content = "Special chars test" :: BS.ByteString
           let fileName = FileName "test file (with) [special] {chars}.txt"
           let folder = Folder ["special-dir"]
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Save and load
-          save content file
-          loaded <- load file
+          saveFile (saveOps localFileOps) content file
+          loaded <- loadFile (loadOps localFileOps) file
           loaded `shouldBe` content
           
           -- Restore original directory
@@ -168,10 +175,10 @@ spec = do
           
           let fileName = FileName "does-not-exist.txt"
           let folder = Folder ["missing"]
-          let file = RelativeFile folder fileName
+          let file = File folder fileName
           
           -- Attempt to load non-existent file should throw
-          result <- try (load file) :: IO (Either SomeException BS.ByteString)
+          result <- try (loadFile (loadOps localFileOps) file) :: IO (Either SomeException BS.ByteString)
           case result of
             Left _ -> return () -- Expected
             Right _ -> expectationFailure "Expected exception when loading non-existent file"

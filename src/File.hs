@@ -1,23 +1,51 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-
 module File
   ( FileName(..)
   , Folder(..)
   , File(..)
-  , SaveFile(..)
-  , LoadFile(..)
+  , SaveOps(..)
+  , LoadOps(..)
+  , DeleteOps(..)
+  , FileOps(..)
+  , defaultFileOps
   ) where
 
 newtype FileName = FileName String
 
 newtype Folder = Folder [String]
 
-data File = RelativeFile Folder FileName 
-          | AbsoluteFile Folder FileName
+data File = File Folder FileName
 
-class Monad m => SaveFile m content where
-  save :: content -> File -> m ()
+-- Capability records
+data SaveOps m content = SaveOps
+  { saveFile :: content -> File -> m ()
+  }
 
-class Monad m => LoadFile m content where
-  load :: File -> m content
+data LoadOps m content = LoadOps
+  { loadFile :: File -> m content
+  }
+
+data DeleteOps m = DeleteOps
+  { deleteFile :: File -> m ()
+  }
+
+-- Combined capability record
+data FileOps m content = FileOps
+  { saveOps   :: SaveOps m content
+  , loadOps   :: LoadOps m content
+  , deleteOps :: DeleteOps m
+  }
+
+-- Default implementation with error messages
+defaultFileOps :: FileOps m content
+defaultFileOps = FileOps
+  { saveOps = SaveOps
+      { saveFile = \_ _ -> error "Save operation not implemented"
+      }
+  , loadOps = LoadOps
+      { loadFile = \_ -> error "Load operation not implemented"
+      }
+  , deleteOps = DeleteOps
+      { deleteFile = \_ -> error "Delete operation not implemented"
+      }
+  }
 
