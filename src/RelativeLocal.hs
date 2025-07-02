@@ -14,8 +14,10 @@ import File
 
 -- Helper function to convert File to relative FilePath
 getRelativeFilePath :: File -> IO FilePath
-getRelativeFilePath (File (Path dirs) (FileName fileName)) = 
-  (</> joinPath (map show dirs ++ [show fileName])) <$> getCurrentDirectory
+getRelativeFilePath file = 
+  let Path dirs = filePath file
+      FileName name = fileName file
+  in (</> joinPath (map show dirs ++ [show name])) <$> getCurrentDirectory
 
 -- Individual capability implementations for relative paths
 relativeSaveOps :: MonadIO m => SaveOps m BS.ByteString

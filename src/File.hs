@@ -44,18 +44,20 @@ newtype FileName = FileName Segment
 newtype Path = Path [Segment]
   deriving (Show, Eq, ToJSON, FromJSON)
 
-data File = File Path FileName
-  deriving (Show, Eq)
+data File = File 
+  { filePath :: Path
+  , fileName :: FileName
+  } deriving (Show, Eq)
 
 instance ToJSON File where
-  toJSON (File folder fileName) = object
-    [ "folder" .= folder
-    , "fileName" .= fileName
+  toJSON (File path name) = object
+    [ "path" .= path
+    , "fileName" .= name
     ]
 
 instance FromJSON File where
   parseJSON = withObject "File" $ \v -> File
-    <$> v .: "folder"
+    <$> v .: "path"
     <*> v .: "fileName"
 
 -- Capability records

@@ -14,8 +14,10 @@ import File
 
 -- Helper function to convert File to absolute FilePath
 getAbsoluteFilePath :: File -> FilePath
-getAbsoluteFilePath (File (Path dirs) (FileName fileName)) = 
-  "/" </> joinPath (map show dirs ++ [show fileName])
+getAbsoluteFilePath file = 
+  let Path dirs = filePath file
+      FileName name = fileName file
+  in "/" </> joinPath (map show dirs ++ [show name])
 
 -- Individual capability implementations for absolute paths
 absoluteSaveOps :: MonadIO m => SaveOps m BS.ByteString
