@@ -21,16 +21,27 @@ dependencies:
 {-# LANGUAGE OverloadedStrings #-}
 
 import File
-import Local (localFileOps)
+import RelativeLocal (relativeFileOps)
+import AbsoluteLocal (absoluteFileOps)
 import qualified Data.ByteString.Char8 as BS
 
 main :: IO ()
 main = do
-  let file = File (Folder ["data"]) (FileName "example.txt")
-  let ops = localFileOps
-  saveFile (saveOps ops) ("Hello, World!" :: BS.ByteString) file
-  content <- loadFile (loadOps ops) file
-  BS.putStrLn content
+  -- Relative path operations (relative to current directory)
+  let relFile = File (Folder ["data"]) (FileName "relative.txt")
+  let relOps = relativeFileOps
+  saveFile (saveOps relOps) ("Relative path!" :: BS.ByteString) relFile
+  
+  -- Absolute path operations
+  let absFile = File (Folder ["/tmp", "myapp"]) (FileName "absolute.txt")
+  let absOps = absoluteFileOps
+  saveFile (saveOps absOps) ("Absolute path!" :: BS.ByteString) absFile
+  
+  -- Load and display
+  content1 <- loadFile (loadOps relOps) relFile
+  content2 <- loadFile (loadOps absOps) absFile
+  BS.putStr content1
+  BS.putStr content2
 ```
 
 ## Core Types

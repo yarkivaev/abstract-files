@@ -1,39 +1,31 @@
 module Local
-  ( localFileOps
+  ( -- * Re-exports from RelativeLocal
+    module RelativeLocal
+    -- * Re-exports from AbsoluteLocal  
+  , module AbsoluteLocal
+    -- * Combined operations (backward compatibility)
+  , localFileOps
   , localSaveOps
   , localLoadOps
+  , localDeleteOps
   ) where
 
 import qualified Data.ByteString as BS
-import System.FilePath ((</>), takeDirectory, joinPath)
-import System.Directory (createDirectoryIfMissing, getCurrentDirectory, removeFile)
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.IO.Class (MonadIO)
 
 import File
+import RelativeLocal
+import AbsoluteLocal
 
--- Helper function to convert File to FilePath
-getFilePath :: File -> IO FilePath
-getFilePath (File (Folder dirs) (FileName name)) = 
-  (</> joinPath (dirs ++ [name])) <$> getCurrentDirectory
+-- Backward compatibility: use relative operations as default
+localFileOps :: MonadIO m => FileOps m BS.ByteString
+localFileOps = relativeFileOps
 
--- Individual capability implementations
 localSaveOps :: MonadIO m => SaveOps m BS.ByteString
-localSaveOps = SaveOps
-  { saveFile = \content file -> liftIO $ do
-      path <- getFilePath file
-      createDirectoryIfMissing True (takeDirectory path)
-      BS.writeFile path content
-  }
+localSaveOps = relativeSaveOps
 
 localLoadOps :: MonadIO m => LoadOps m BS.ByteString
-localLoadOps = LoadOps
-  { loadFile = \file -> liftIO $ getFilePath file >>= BS.readFile
-  }
+localLoadOps = relativeLoadOps
 
--- Combined file operations for local filesystem
-localFileOps :: MonadIO m => FileOps m BS.ByteString
-localFileOps = defaultFileOps
-  { saveOps = localSaveOps
-  , loadOps = localLoadOps
-  }
-
+localDeleteOps :: MonadIO m => DeleteOps m
+localDeleteOps = relativeDeleteOps

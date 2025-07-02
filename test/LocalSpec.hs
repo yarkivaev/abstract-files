@@ -5,12 +5,14 @@ module LocalSpec (spec) where
 import Test.Hspec
 import System.IO.Temp
 import System.Directory
-import System.FilePath
+import System.FilePath ((</>), splitDirectories)
 import Control.Exception (try, SomeException)
 import qualified Data.ByteString as BS
 
 import File
 import Local (localFileOps)
+import RelativeLocal (relativeFileOps)
+import AbsoluteLocal (absoluteFileOps)
 
 spec :: Spec
 spec = do
@@ -164,6 +166,52 @@ spec = do
           loaded `shouldBe` content
           
           -- Restore original directory
+          setCurrentDirectory originalDir
+
+    describe "absolute path operations" $ do
+      it "saves and loads using absolute paths" $ do
+        withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
+          let content = "Absolute path content" :: BS.ByteString
+          let fileName = FileName "absolute-test.txt"
+          let folder = Folder (drop 1 (splitDirectories tmpDir) ++ ["abs-subdir"])
+          let file = File folder fileName
+          
+          -- Save using absolute operations
+          saveFile (saveOps absoluteFileOps) content file
+          
+          -- Load using absolute operations
+          loaded <- loadFile (loadOps absoluteFileOps) file
+          loaded `shouldBe` content
+          
+          -- Verify file exists at expected absolute location
+          exists <- doesFileExist $ tmpDir </> "abs-subdir" </> "absolute-test.txt"
+          exists `shouldBe` True
+
+      it "demonstrates relative vs absolute behavior" $ do
+        withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
+          originalDir <- getCurrentDirectory
+          setCurrentDirectory tmpDir
+          
+          let content = "Path test" :: BS.ByteString
+          let fileName = FileName "path-test.txt"
+          let folder = Folder ["test-dir"]
+          let file = File folder fileName
+          
+          -- Save with relative operations (relative to current dir)
+          saveFile (saveOps relativeFileOps) content file
+          
+          -- File should exist relative to current directory
+          relativeExists <- doesFileExist $ "test-dir" </> "path-test.txt"
+          relativeExists `shouldBe` True
+          
+          -- Now test absolute operations with absolute path
+          let absFile = File (Folder (drop 1 (splitDirectories tmpDir) ++ ["abs-test-dir"])) fileName
+          saveFile (saveOps absoluteFileOps) content absFile
+          
+          -- File should exist at absolute location
+          absoluteExists <- doesFileExist $ tmpDir </> "abs-test-dir" </> "path-test.txt"
+          absoluteExists `shouldBe` True
+          
           setCurrentDirectory originalDir
 
     describe "error handling" $ do
