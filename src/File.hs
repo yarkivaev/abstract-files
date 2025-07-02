@@ -3,9 +3,9 @@
 
 module File
   ( FileName(..)
-  , Folder(..)
+  , Path(..)
   , File(..)
-  , SafeString(..)
+  , Segment
   , SaveOps(..)
   , LoadOps(..)
   , DeleteOps(..)
@@ -18,30 +18,33 @@ import Data.Aeson (ToJSON(..), FromJSON(..), withText, withObject, (.=), (.:), o
 import qualified Data.Text as T
 
 -- Safe string that cannot contain path separators
-newtype SafeString = SafeString String
-  deriving (Show, Eq)
+newtype Segment = Segment String
+  deriving (Eq)
 
-instance IsString SafeString where
+instance Show Segment where
+  show (Segment s) = s
+
+instance IsString Segment where
   fromString s 
-    | '/' `elem` s = error $ "SafeString cannot contain '/': " ++ s
-    | null s = error "SafeString cannot be empty"
-    | otherwise = SafeString s
+    | '/' `elem` s = error $ "Segment cannot contain '/': " ++ s
+    | null s = error "Segment cannot be empty"
+    | otherwise = Segment s
 
-instance ToJSON SafeString where
-  toJSON (SafeString s) = toJSON s
+instance ToJSON Segment where
+  toJSON (Segment s) = toJSON s
 
-instance FromJSON SafeString where
-  parseJSON = withText "SafeString" $ \t -> 
+instance FromJSON Segment where
+  parseJSON = withText "Segment" $ \t -> 
     pure $ fromString (T.unpack t)
 
 
-newtype FileName = FileName SafeString
+newtype FileName = FileName Segment
   deriving (Show, Eq, IsString, ToJSON, FromJSON)
 
-newtype Folder = Folder [SafeString]
+newtype Path = Path [Segment]
   deriving (Show, Eq, ToJSON, FromJSON)
 
-data File = File Folder FileName
+data File = File Path FileName
   deriving (Show, Eq)
 
 instance ToJSON File where

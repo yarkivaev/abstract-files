@@ -28,7 +28,7 @@ spec = do
           
           let content = "Hello, World!" :: BS.ByteString
           let fileName = FileName "test.txt"
-          let folder = Folder ["subdir"]
+          let folder = Path ["subdir"]
           let file = File folder fileName
           
           -- Save the file
@@ -53,7 +53,7 @@ spec = do
           
           let content = "Different dir test" :: BS.ByteString
           let fileName = FileName "test.txt"
-          let folder = Folder ["different", "subdir"]
+          let folder = Path ["different", "subdir"]
           let file = File folder fileName
           
           -- Save the file
@@ -78,7 +78,7 @@ spec = do
           
           let content = "Nested directory test" :: BS.ByteString
           let fileName = FileName "nested.txt"
-          let folder = Folder ["level1", "level2", "level3"]
+          let folder = Path ["level1", "level2", "level3"]
           let file = File folder fileName
           
           -- Directory should not exist initially
@@ -108,7 +108,7 @@ spec = do
           let content1 = "Original content" :: BS.ByteString
           let content2 = "New content" :: BS.ByteString
           let fileName = FileName "overwrite.txt"
-          let folder = Folder []
+          let folder = Path []
           let file = File folder fileName
           
           -- Save first version
@@ -132,7 +132,7 @@ spec = do
           
           let content = BS.empty
           let fileName = FileName "empty.txt"
-          let folder = Folder ["empty-test"]
+          let folder = Path ["empty-test"]
           let file = File folder fileName
           
           -- Save empty file
@@ -159,7 +159,7 @@ spec = do
           
           let content = "Special chars test" :: BS.ByteString
           let fileName = FileName "test file (with) [special] {chars}.txt"
-          let folder = Folder ["special-dir"]
+          let folder = Path ["special-dir"]
           let file = File folder fileName
           
           -- Save and load
@@ -175,7 +175,7 @@ spec = do
         withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
           let content = "Absolute path content" :: BS.ByteString
           let fileName = FileName "absolute-test.txt"
-          let folder = Folder (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-subdir"])
+          let folder = Path (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-subdir"])
           let file = File folder fileName
           
           -- Save using absolute operations
@@ -196,7 +196,7 @@ spec = do
           
           let content = "Path test" :: BS.ByteString
           let fileName = FileName "path-test.txt"
-          let folder = Folder ["test-dir"]
+          let folder = Path ["test-dir"]
           let file = File folder fileName
           
           -- Save with relative operations (relative to current dir)
@@ -207,7 +207,7 @@ spec = do
           relativeExists `shouldBe` True
           
           -- Now test absolute operations with absolute path
-          let absFile = File (Folder (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-test-dir"])) fileName
+          let absFile = File (Path (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-test-dir"])) fileName
           saveFile (saveOps absoluteFileOps) content absFile
           
           -- File should exist at absolute location
@@ -224,7 +224,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let fileName = FileName "does-not-exist.txt"
-          let folder = Folder ["missing"]
+          let folder = Path ["missing"]
           let file = File folder fileName
           
           -- Attempt to load non-existent file should throw
