@@ -22,13 +22,14 @@ spec = do
       it "rejects empty strings" $ do
         evaluate ("" :: Segment) `shouldThrow` anyErrorCall
 
-    describe "FileName validation" $ do
+    describe "fileName validation" $ do
       it "accepts valid filenames" $ do
-        let validFile = FileName "document.pdf"
-        show validFile `shouldBe` show (FileName "document.pdf")
+        let validFile = "document.pdf" :: FileName
+        validFile `shouldBe` "document.pdf"
 
-      it "rejects filenames with slashes" $ do
-        evaluate (FileName "path/to/file.txt") `shouldThrow` anyErrorCall
+      it "allows any strings including slashes" $ do
+        let validFile = "path/to/file.txt" :: FileName
+        validFile `shouldBe` "path/to/file.txt"
 
     describe "Path validation" $ do
       it "accepts valid folder components" $ do
@@ -43,15 +44,15 @@ spec = do
 
     describe "File construction" $ do
       it "creates valid files successfully" $ do
-        let file = File (Path ["home", "user"]) (FileName "document.txt")
-        show file `shouldBe` show (File (Path ["home", "user"]) (FileName "document.txt"))
+        let file = File (Path ["home", "user"]) "document.txt"
+        show file `shouldBe` show (File (Path ["home", "user"]) "document.txt")
 
       it "prevents files with invalid paths at compile/runtime" $ do
         evaluate ("home/invalid" :: Segment) `shouldThrow` anyErrorCall
 
   describe "JSON serialization" $ do
     it "encodes and decodes File to/from JSON" $ do
-      let file = File (Path ["home", "user"]) (FileName "document.txt")
+      let file = File (Path ["home", "user"]) "document.txt"
       let encoded = encode file
       decode encoded `shouldBe` Just file
 
@@ -61,9 +62,9 @@ spec = do
       decode encoded `shouldBe` Just safeStr
 
     it "encodes and decodes FileName to/from JSON" $ do
-      let fileName = FileName "test.txt"
-      let encoded = encode fileName
-      decode encoded `shouldBe` Just fileName
+      let name = "test.txt" :: FileName
+      let encoded = encode name
+      decode encoded `shouldBe` Just name
 
     it "encodes and decodes Path to/from JSON" $ do
       let folder = Path ["path", "to", "folder"]

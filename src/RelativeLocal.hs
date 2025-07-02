@@ -16,8 +16,8 @@ import File
 getRelativeFilePath :: File -> IO FilePath
 getRelativeFilePath file = 
   let Path dirs = filePath file
-      FileName name = fileName file
-  in (</> joinPath (map show dirs ++ [show name])) <$> getCurrentDirectory
+      name = fileName file
+  in (</> joinPath (map show dirs ++ [name])) <$> getCurrentDirectory
 
 -- Individual capability implementations for relative paths
 relativeSaveOps :: MonadIO m => SaveOps m BS.ByteString

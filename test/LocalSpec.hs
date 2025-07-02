@@ -27,7 +27,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = "Hello, World!" :: BS.ByteString
-          let fileName = FileName "test.txt"
+          let fileName = "test.txt"
           let folder = Path ["subdir"]
           let file = File folder fileName
           
@@ -52,7 +52,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = "Different dir test" :: BS.ByteString
-          let fileName = FileName "test.txt"
+          let fileName = "test.txt"
           let folder = Path ["different", "subdir"]
           let file = File folder fileName
           
@@ -77,7 +77,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = "Nested directory test" :: BS.ByteString
-          let fileName = FileName "nested.txt"
+          let fileName = "nested.txt"
           let folder = Path ["level1", "level2", "level3"]
           let file = File folder fileName
           
@@ -107,7 +107,7 @@ spec = do
           
           let content1 = "Original content" :: BS.ByteString
           let content2 = "New content" :: BS.ByteString
-          let fileName = FileName "overwrite.txt"
+          let fileName = "overwrite.txt"
           let folder = Path []
           let file = File folder fileName
           
@@ -131,7 +131,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = BS.empty
-          let fileName = FileName "empty.txt"
+          let fileName = "empty.txt"
           let folder = Path ["empty-test"]
           let file = File folder fileName
           
@@ -158,7 +158,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = "Special chars test" :: BS.ByteString
-          let fileName = FileName "test file (with) [special] {chars}.txt"
+          let fileName = "test file (with) [special] {chars}.txt"
           let folder = Path ["special-dir"]
           let file = File folder fileName
           
@@ -174,7 +174,7 @@ spec = do
       it "saves and loads using absolute paths" $ do
         withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
           let content = "Absolute path content" :: BS.ByteString
-          let fileName = FileName "absolute-test.txt"
+          let fileName = "absolute-test.txt"
           let folder = Path (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-subdir"])
           let file = File folder fileName
           
@@ -195,7 +195,7 @@ spec = do
           setCurrentDirectory tmpDir
           
           let content = "Path test" :: BS.ByteString
-          let fileName = FileName "path-test.txt"
+          let fileName = "path-test.txt"
           let folder = Path ["test-dir"]
           let file = File folder fileName
           
@@ -223,7 +223,7 @@ spec = do
           originalDir <- getCurrentDirectory
           setCurrentDirectory tmpDir
           
-          let fileName = FileName "does-not-exist.txt"
+          let fileName = "does-not-exist.txt"
           let folder = Path ["missing"]
           let file = File folder fileName
           

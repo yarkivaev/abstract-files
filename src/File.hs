@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module File
-  ( FileName(..)
+  ( FileName
   , Path(..)
   , File(..)
   , Segment
@@ -38,8 +38,7 @@ instance FromJSON Segment where
     pure $ fromString (T.unpack t)
 
 
-newtype FileName = FileName Segment
-  deriving (Show, Eq, IsString, ToJSON, FromJSON)
+type FileName = String
 
 newtype Path = Path [Segment]
   deriving (Show, Eq, ToJSON, FromJSON)
