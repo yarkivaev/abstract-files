@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module File
-  ( FileName
+  ( FileName(..)
   , Path(..)
   , File(..)
   , Segment
@@ -15,30 +15,31 @@ module File
 
 import Data.String (IsString(fromString))
 import Data.Aeson (ToJSON(..), FromJSON(..), withText, withObject, (.=), (.:), object)
+import Data.Text (Text)
 import qualified Data.Text as T
 
 -- Safe string that cannot contain path separators
-newtype Segment = Segment String
+newtype Segment = Segment Text
   deriving (Eq)
 
 instance Show Segment where
-  show (Segment s) = s
+  show (Segment t) = T.unpack t
 
 instance IsString Segment where
   fromString s 
     | '/' `elem` s = error $ "Segment cannot contain '/': " ++ s
     | null s = error "Segment cannot be empty"
-    | otherwise = Segment s
+    | otherwise = Segment (T.pack s)
 
 instance ToJSON Segment where
-  toJSON (Segment s) = toJSON s
+  toJSON (Segment t) = toJSON t
 
 instance FromJSON Segment where
   parseJSON = withText "Segment" $ \t -> 
-    pure $ fromString (T.unpack t)
+    pure $ Segment t
 
-
-type FileName = String
+newtype FileName = FileName Segment
+  deriving (Show, Eq, IsString, ToJSON, FromJSON)
 
 newtype Path = Path [Segment]
   deriving (Show, Eq, ToJSON, FromJSON)

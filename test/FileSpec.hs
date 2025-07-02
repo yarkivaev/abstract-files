@@ -27,9 +27,8 @@ spec = do
         let validFile = "document.pdf" :: FileName
         validFile `shouldBe` "document.pdf"
 
-      it "allows any strings including slashes" $ do
-        let validFile = "path/to/file.txt" :: FileName
-        validFile `shouldBe` "path/to/file.txt"
+      it "rejects filenames with slashes" $ do
+        evaluate ("path/to/file.txt" :: FileName) `shouldThrow` anyErrorCall
 
     describe "Path validation" $ do
       it "accepts valid folder components" $ do

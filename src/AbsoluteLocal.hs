@@ -16,8 +16,8 @@ import File
 getAbsoluteFilePath :: File -> FilePath
 getAbsoluteFilePath file = 
   let Path dirs = filePath file
-      name = fileName file
-  in "/" </> joinPath (map show dirs ++ [name])
+      FileName name = fileName file
+  in "/" </> joinPath (map show dirs ++ [show name])
 
 -- Individual capability implementations for absolute paths
 absoluteSaveOps :: MonadIO m => SaveOps m BS.ByteString
