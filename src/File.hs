@@ -14,6 +14,8 @@ module File
   ) where
 
 import Data.String (IsString(fromString))
+import Data.Aeson (ToJSON(..), FromJSON(..), withText, withObject, (.=), (.:), object)
+import qualified Data.Text as T
 
 -- Safe string that cannot contain path separators
 newtype SafeString = SafeString String
@@ -25,15 +27,33 @@ instance IsString SafeString where
     | null s = error "SafeString cannot be empty"
     | otherwise = SafeString s
 
+instance ToJSON SafeString where
+  toJSON (SafeString s) = toJSON s
+
+instance FromJSON SafeString where
+  parseJSON = withText "SafeString" $ \t -> 
+    pure $ fromString (T.unpack t)
+
 
 newtype FileName = FileName SafeString
-  deriving (Show, Eq, IsString)
+  deriving (Show, Eq, IsString, ToJSON, FromJSON)
 
 newtype Folder = Folder [SafeString]
-  deriving (Show, Eq)
+  deriving (Show, Eq, ToJSON, FromJSON)
 
 data File = File Folder FileName
   deriving (Show, Eq)
+
+instance ToJSON File where
+  toJSON (File folder fileName) = object
+    [ "folder" .= folder
+    , "fileName" .= fileName
+    ]
+
+instance FromJSON File where
+  parseJSON = withObject "File" $ \v -> File
+    <$> v .: "folder"
+    <*> v .: "fileName"
 
 -- Capability records
 data SaveOps m content = SaveOps

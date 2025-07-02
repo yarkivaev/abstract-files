@@ -24,6 +24,8 @@ dependencies:
 - bytestring
 - filepath
 - directory
+- aeson
+- text
 
 ghc-options:
 - -Wall

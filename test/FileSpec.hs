@@ -4,6 +4,7 @@ module FileSpec (spec) where
 
 import Test.Hspec
 import Control.Exception (evaluate)
+import Data.Aeson (encode, decode)
 
 import File
 
@@ -48,3 +49,24 @@ spec = do
 
       it "prevents files with invalid paths at compile/runtime" $ do
         evaluate ("home/invalid" :: SafeString) `shouldThrow` anyErrorCall
+
+  describe "JSON serialization" $ do
+    it "encodes and decodes File to/from JSON" $ do
+      let file = File (Folder ["home", "user"]) (FileName "document.txt")
+      let encoded = encode file
+      decode encoded `shouldBe` Just file
+
+    it "encodes and decodes SafeString to/from JSON" $ do
+      let safeStr = "valid-string" :: SafeString
+      let encoded = encode safeStr
+      decode encoded `shouldBe` Just safeStr
+
+    it "encodes and decodes FileName to/from JSON" $ do
+      let fileName = FileName "test.txt"
+      let encoded = encode fileName
+      decode encoded `shouldBe` Just fileName
+
+    it "encodes and decodes Folder to/from JSON" $ do
+      let folder = Folder ["path", "to", "folder"]
+      let encoded = encode folder
+      decode encoded `shouldBe` Just folder
