@@ -3,6 +3,7 @@ module RelativeLocal
   , relativeSaveOps
   , relativeLoadOps
   , relativeDeleteOps
+  , relativeShowOps
   ) where
 
 import qualified Data.ByteString as BS
@@ -10,6 +11,7 @@ import System.FilePath ((</>), takeDirectory, joinPath)
 import System.Directory (createDirectoryIfMissing, getCurrentDirectory, removeFile)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text as T
+import Data.Text (Text)
 
 import File
 
@@ -39,10 +41,21 @@ relativeDeleteOps = DeleteOps
   { deleteFile = \file -> liftIO $ getRelativeFilePath file >>= removeFile
   }
 
+-- ShowOps implementation for relative paths using FilePath
+relativeShowOps :: ShowOps
+relativeShowOps = ShowOps
+  { showPath = \(Path segments) -> T.pack $ joinPath (map show segments)
+  , showFile = \file -> 
+      let Path dirs = filePath file
+          name = fileName file
+      in T.pack $ joinPath (map show dirs ++ [T.unpack name])
+  }
+
 -- Combined file operations for relative paths in local filesystem
 relativeFileOps :: MonadIO m => FileOps m BS.ByteString
 relativeFileOps = defaultFileOps
   { saveOps = relativeSaveOps
   , loadOps = relativeLoadOps
   , deleteOps = relativeDeleteOps
+  , showOps = relativeShowOps
   }

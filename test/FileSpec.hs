@@ -8,6 +8,13 @@ import Data.Aeson (encode, decode)
 
 import File
 
+-- Helper for equality testing without Show
+shouldEqual :: (Eq a, HasCallStack) => a -> a -> Expectation
+shouldEqual actual expected = 
+  if actual == expected 
+    then return ()
+    else expectationFailure "Values are not equal"
+
 spec :: Spec
 spec = do
   describe "File type safety" $ do
@@ -34,7 +41,7 @@ spec = do
     describe "Path validation" $ do
       it "accepts valid folder components" $ do
         let validPath = Path ["docs", "projects", "2024"]
-        show validPath `shouldBe` show (Path ["docs", "projects", "2024"])
+        validPath `shouldEqual` Path ["docs", "projects", "2024"]
 
       it "rejects folder components with slashes" $ do
         evaluate ("invalid/path" :: Segment) `shouldThrow` anyErrorCall
@@ -45,7 +52,7 @@ spec = do
     describe "File construction" $ do
       it "creates valid files successfully" $ do
         let file = File (Path ["home", "user"]) "document.txt"
-        show file `shouldBe` show (File (Path ["home", "user"]) "document.txt")
+        file `shouldEqual` File (Path ["home", "user"]) "document.txt"
 
       it "prevents files with invalid paths at compile/runtime" $ do
         evaluate ("home/invalid" :: Segment) `shouldThrow` anyErrorCall
@@ -54,7 +61,9 @@ spec = do
     it "encodes and decodes File to/from JSON" $ do
       let file = File (Path ["home", "user"]) "document.txt"
       let encoded = encode file
-      decode encoded `shouldBe` Just file
+      case decode encoded of
+        Just decoded -> decoded `shouldEqual` file
+        Nothing -> expectationFailure "Failed to decode File from JSON"
 
     it "encodes and decodes Segment to/from JSON" $ do
       let safeStr = "valid-string" :: Segment
@@ -69,4 +78,25 @@ spec = do
     it "encodes and decodes Path to/from JSON" $ do
       let folder = Path ["path", "to", "folder"]
       let encoded = encode folder
-      decode encoded `shouldBe` Just folder
+      case decode encoded of
+        Just decoded -> decoded `shouldEqual` folder
+        Nothing -> expectationFailure "Failed to decode Path from JSON"
+
+  describe "ShowOps functionality" $ do
+    describe "defaultShowOps" $ do
+      it "throws error for showPath when not implemented" $ do
+        let path = Path ["test", "path"]
+        evaluate (showPath defaultShowOps path) `shouldThrow` anyErrorCall
+
+      it "throws error for showFile when not implemented" $ do
+        let file = File (Path ["test"]) "file.txt"
+        evaluate (showFile defaultShowOps file) `shouldThrow` anyErrorCall
+
+    describe "ShowOps integration with FileOps" $ do
+      it "defaultFileOps includes defaultShowOps" $ do
+        let path = Path ["test", "path"]
+        evaluate (showPath (showOps defaultFileOps) path) `shouldThrow` anyErrorCall
+
+      it "showOps field is accessible in FileOps" $ do
+        let file = File (Path ["test"]) "file.txt"
+        evaluate (showFile (showOps defaultFileOps) file) `shouldThrow` anyErrorCall

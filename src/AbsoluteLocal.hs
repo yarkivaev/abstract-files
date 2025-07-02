@@ -3,6 +3,7 @@ module AbsoluteLocal
   , absoluteSaveOps
   , absoluteLoadOps
   , absoluteDeleteOps
+  , absoluteShowOps
   ) where
 
 import qualified Data.ByteString as BS
@@ -10,6 +11,7 @@ import System.FilePath (takeDirectory, joinPath, (</>))
 import System.Directory (createDirectoryIfMissing, removeFile)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text as T
+import Data.Text (Text)
 
 import File
 
@@ -39,10 +41,18 @@ absoluteDeleteOps = DeleteOps
   { deleteFile = \file -> liftIO $ removeFile (getAbsoluteFilePath file)
   }
 
+-- ShowOps implementation for absolute paths using FilePath
+absoluteShowOps :: ShowOps
+absoluteShowOps = ShowOps
+  { showPath = \(Path segments) -> T.pack $ "/" </> joinPath (map show segments)
+  , showFile = \file -> T.pack $ getAbsoluteFilePath file
+  }
+
 -- Combined file operations for absolute paths in local filesystem
 absoluteFileOps :: MonadIO m => FileOps m BS.ByteString
 absoluteFileOps = defaultFileOps
   { saveOps = absoluteSaveOps
   , loadOps = absoluteLoadOps
   , deleteOps = absoluteDeleteOps
+  , showOps = absoluteShowOps
   }

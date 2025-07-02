@@ -13,8 +13,8 @@ import qualified Data.ByteString as BS
 
 import File
 import Local (localFileOps)
-import RelativeLocal (relativeFileOps)
-import AbsoluteLocal (absoluteFileOps)
+import RelativeLocal (relativeFileOps, relativeShowOps)
+import AbsoluteLocal (absoluteFileOps, absoluteShowOps)
 
 spec :: Spec
 spec = do
@@ -239,6 +239,56 @@ spec = do
       it "handles permission errors gracefully" $ do
         -- This test is platform-dependent and may need adjustment
         pendingWith "Permission testing is platform-dependent"
+
+    describe "ShowOps implementations" $ do
+      describe "absoluteShowOps" $ do
+        it "shows absolute paths with leading slash" $ do
+          let path = Path ["home", "user", "documents"]
+          showPath absoluteShowOps path `shouldBe` "/home/user/documents"
+
+        it "shows absolute files with full path" $ do
+          let file = File (Path ["home", "user"]) "document.txt"
+          showFile absoluteShowOps file `shouldBe` "/home/user/document.txt"
+
+        it "handles empty path" $ do
+          let path = Path []
+          showPath absoluteShowOps path `shouldBe` "/"
+
+        it "handles file in root" $ do
+          let file = File (Path []) "root-file.txt"
+          showFile absoluteShowOps file `shouldBe` "/root-file.txt"
+
+      describe "relativeShowOps" $ do
+        it "shows relative paths without leading slash" $ do
+          let path = Path ["docs", "projects"]
+          showPath relativeShowOps path `shouldBe` "docs/projects"
+
+        it "shows relative files without leading slash" $ do
+          let file = File (Path ["src", "main"]) "app.hs"
+          showFile relativeShowOps file `shouldBe` "src/main/app.hs"
+
+        it "handles empty relative path" $ do
+          let path = Path []
+          showPath relativeShowOps path `shouldBe` ""
+
+        it "handles file in current directory" $ do
+          let file = File (Path []) "local-file.txt"
+          showFile relativeShowOps file `shouldBe` "local-file.txt"
+
+      describe "ShowOps integration with FileOps" $ do
+        it "absoluteFileOps includes absoluteShowOps" $ do
+          let path = Path ["test", "absolute"]
+          showPath (showOps (absoluteFileOps :: FileOps IO BS.ByteString)) path `shouldBe` "/test/absolute"
+
+        it "relativeFileOps includes relativeShowOps" $ do
+          let path = Path ["test", "relative"]
+          showPath (showOps (relativeFileOps :: FileOps IO BS.ByteString)) path `shouldBe` "test/relative"
+
+        it "demonstrates context-dependent display" $ do
+          let file = File (Path ["project", "src"]) "Main.hs"
+          -- Same file, different context-dependent display
+          showFile (showOps (absoluteFileOps :: FileOps IO BS.ByteString)) file `shouldBe` "/project/src/Main.hs"
+          showFile (showOps (relativeFileOps :: FileOps IO BS.ByteString)) file `shouldBe` "project/src/Main.hs"
 
 -- Helper function to get file size
 getFileSizeBytes :: FilePath -> IO Integer

@@ -9,7 +9,9 @@ module File
   , SaveOps(..)
   , LoadOps(..)
   , DeleteOps(..)
+  , ShowOps(..)
   , FileOps(..)
+  , defaultShowOps
   , defaultFileOps
   ) where
 
@@ -41,12 +43,12 @@ instance FromJSON Segment where
 type FileName = Text
 
 newtype Path = Path [Segment]
-  deriving (Show, Eq, ToJSON, FromJSON)
+  deriving (Eq, ToJSON, FromJSON)
 
 data File = File 
   { filePath :: Path
   , fileName :: FileName
-  } deriving (Show, Eq)
+  } deriving (Eq)
 
 instance ToJSON File where
   toJSON (File path name) = object
@@ -77,9 +79,22 @@ data FileOps m content = FileOps
   { saveOps   :: SaveOps m content
   , loadOps   :: LoadOps m content
   , deleteOps :: DeleteOps m
+  , showOps   :: ShowOps
   }
 
--- Default implementation with error messages
+-- Context-dependent showing operations
+data ShowOps = ShowOps
+  { showPath :: Path -> Text
+  , showFile :: File -> Text
+  }
+
+-- Default implementations
+defaultShowOps :: ShowOps
+defaultShowOps = ShowOps
+  { showPath = \_ -> error "Show path operation not implemented"
+  , showFile = \_ -> error "Show file operation not implemented"
+  }
+
 defaultFileOps :: FileOps m content
 defaultFileOps = FileOps
   { saveOps = SaveOps
@@ -91,5 +106,6 @@ defaultFileOps = FileOps
   , deleteOps = DeleteOps
       { deleteFile = \_ -> error "Delete operation not implemented"
       }
+  , showOps = defaultShowOps
   }
 
