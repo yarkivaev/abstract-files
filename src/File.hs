@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module File
-  ( FileName(..)
+  ( FileName
   , Path(..)
   , File(..)
   , Segment
@@ -38,8 +38,7 @@ instance FromJSON Segment where
   parseJSON = withText "Segment" $ \t -> 
     pure $ Segment t
 
-newtype FileName = FileName Segment
-  deriving (Show, Eq, IsString, ToJSON, FromJSON)
+type FileName = Text
 
 newtype Path = Path [Segment]
   deriving (Show, Eq, ToJSON, FromJSON)

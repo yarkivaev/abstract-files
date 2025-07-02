@@ -9,6 +9,7 @@ import qualified Data.ByteString as BS
 import System.FilePath (takeDirectory, joinPath, (</>))
 import System.Directory (createDirectoryIfMissing, removeFile)
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import qualified Data.Text as T
 
 import File
 
@@ -16,8 +17,8 @@ import File
 getAbsoluteFilePath :: File -> FilePath
 getAbsoluteFilePath file = 
   let Path dirs = filePath file
-      FileName name = fileName file
-  in "/" </> joinPath (map show dirs ++ [show name])
+      name = fileName file
+  in "/" </> joinPath (map show dirs ++ [T.unpack name])
 
 -- Individual capability implementations for absolute paths
 absoluteSaveOps :: MonadIO m => SaveOps m BS.ByteString
