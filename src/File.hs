@@ -1,7 +1,11 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module File
   ( FileName(..)
   , Folder(..)
   , File(..)
+  , SafeString(..)
   , SaveOps(..)
   , LoadOps(..)
   , DeleteOps(..)
@@ -9,11 +13,27 @@ module File
   , defaultFileOps
   ) where
 
-newtype FileName = FileName String
+import Data.String (IsString(fromString))
 
-newtype Folder = Folder [String]
+-- Safe string that cannot contain path separators
+newtype SafeString = SafeString String
+  deriving (Show, Eq)
+
+instance IsString SafeString where
+  fromString s 
+    | '/' `elem` s = error $ "SafeString cannot contain '/': " ++ s
+    | null s = error "SafeString cannot be empty"
+    | otherwise = SafeString s
+
+
+newtype FileName = FileName SafeString
+  deriving (Show, Eq, IsString)
+
+newtype Folder = Folder [SafeString]
+  deriving (Show, Eq)
 
 data File = File Folder FileName
+  deriving (Show, Eq)
 
 -- Capability records
 data SaveOps m content = SaveOps

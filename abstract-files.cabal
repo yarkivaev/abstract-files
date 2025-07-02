@@ -45,6 +45,7 @@ test-suite abstract-files-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      FileSpec
       LocalSpec
       Paths_abstract_files
   hs-source-dirs:

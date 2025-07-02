@@ -2,6 +2,8 @@
 
 module LocalSpec (spec) where
 
+import Data.String (fromString)
+
 import Test.Hspec
 import System.IO.Temp
 import System.Directory
@@ -173,7 +175,7 @@ spec = do
         withSystemTempDirectory "abstract-files-test" $ \tmpDir -> do
           let content = "Absolute path content" :: BS.ByteString
           let fileName = FileName "absolute-test.txt"
-          let folder = Folder (drop 1 (splitDirectories tmpDir) ++ ["abs-subdir"])
+          let folder = Folder (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-subdir"])
           let file = File folder fileName
           
           -- Save using absolute operations
@@ -205,7 +207,7 @@ spec = do
           relativeExists `shouldBe` True
           
           -- Now test absolute operations with absolute path
-          let absFile = File (Folder (drop 1 (splitDirectories tmpDir) ++ ["abs-test-dir"])) fileName
+          let absFile = File (Folder (map fromString (drop 1 (splitDirectories tmpDir)) ++ ["abs-test-dir"])) fileName
           saveFile (saveOps absoluteFileOps) content absFile
           
           -- File should exist at absolute location
