@@ -82,21 +82,3 @@ spec = do
         Just decoded -> decoded `shouldEqual` folder
         Nothing -> expectationFailure "Failed to decode Path from JSON"
 
-  describe "ShowOps functionality" $ do
-    describe "defaultShowOps" $ do
-      it "throws error for showPath when not implemented" $ do
-        let path = Path ["test", "path"]
-        evaluate (showPath defaultShowOps path) `shouldThrow` anyErrorCall
-
-      it "throws error for showFile when not implemented" $ do
-        let file = File (Path ["test"]) "file.txt"
-        evaluate (showFile defaultShowOps file) `shouldThrow` anyErrorCall
-
-    describe "ShowOps integration with FileOps" $ do
-      it "defaultFileOps includes defaultShowOps" $ do
-        let path = Path ["test", "path"]
-        evaluate (showPath (showOps defaultFileOps) path) `shouldThrow` anyErrorCall
-
-      it "showOps field is accessible in FileOps" $ do
-        let file = File (Path ["test"]) "file.txt"
-        evaluate (showFile (showOps defaultFileOps) file) `shouldThrow` anyErrorCall

@@ -5,14 +5,7 @@ module File
   ( FileName
   , Path(..)
   , File(..)
-  , Segment
-  , SaveOps(..)
-  , LoadOps(..)
-  , DeleteOps(..)
-  , ShowOps(..)
-  , FileOps(..)
-  , defaultShowOps
-  , defaultFileOps
+  , Segment(..)
   ) where
 
 import Data.String (IsString(fromString))
@@ -61,51 +54,4 @@ instance FromJSON File where
     <$> v .: "path"
     <*> v .: "fileName"
 
--- Capability records
-data SaveOps m content = SaveOps
-  { saveFile :: content -> File -> m ()
-  }
-
-data LoadOps m content = LoadOps
-  { loadFile :: File -> m content
-  }
-
-data DeleteOps m = DeleteOps
-  { deleteFile :: File -> m ()
-  }
-
--- Combined capability record
-data FileOps m content = FileOps
-  { saveOps   :: SaveOps m content
-  , loadOps   :: LoadOps m content
-  , deleteOps :: DeleteOps m
-  , showOps   :: ShowOps
-  }
-
--- Context-dependent showing operations
-data ShowOps = ShowOps
-  { showPath :: Path -> Text
-  , showFile :: File -> Text
-  }
-
--- Default implementations
-defaultShowOps :: ShowOps
-defaultShowOps = ShowOps
-  { showPath = \_ -> error "Show path operation not implemented"
-  , showFile = \_ -> error "Show file operation not implemented"
-  }
-
-defaultFileOps :: FileOps m content
-defaultFileOps = FileOps
-  { saveOps = SaveOps
-      { saveFile = \_ _ -> error "Save operation not implemented"
-      }
-  , loadOps = LoadOps
-      { loadFile = \_ -> error "Load operation not implemented"
-      }
-  , deleteOps = DeleteOps
-      { deleteFile = \_ -> error "Delete operation not implemented"
-      }
-  , showOps = defaultShowOps
-  }
 

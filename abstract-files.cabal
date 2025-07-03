@@ -25,10 +25,18 @@ source-repository head
 
 library
   exposed-modules:
-      AbsoluteLocal
+      Absolute.ByteString
+      Absolute.Common
+      Absolute.FileSystem
+      Absolute.Instances
+      Absolute.Text
       File
-      Local
-      RelativeLocal
+      FileStorage
+      Relative.ByteString
+      Relative.Common
+      Relative.FileSystem
+      Relative.Instances
+      Relative.Text
   other-modules:
       Paths_abstract_files
   hs-source-dirs:
@@ -40,6 +48,7 @@ library
     , bytestring
     , directory
     , filepath
+    , mtl
     , text
   default-language: Haskell2010
 
@@ -47,8 +56,10 @@ test-suite abstract-files-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Absolute.AbsoluteFSSpec
       FileSpec
-      LocalSpec
+      FileStorageSpec
+      Relative.RelativeFSSpec
       Paths_abstract_files
   hs-source-dirs:
       test
@@ -61,6 +72,7 @@ test-suite abstract-files-test
     , directory
     , filepath
     , hspec
+    , mtl
     , temporary
     , text
   default-language: Haskell2010

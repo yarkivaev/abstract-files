@@ -26,6 +26,7 @@ dependencies:
 - directory
 - aeson
 - text
+- mtl
 
 ghc-options:
 - -Wall
