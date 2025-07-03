@@ -3,12 +3,12 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module FileStorage
+module FileSystem
   ( MonadFileSave(..)
   , MonadFileLoad(..)
   , MonadFileDelete(..)
   , MonadFileShow(..)
-  , MonadFileStorage
+  , MonadFileSystem
   ) where
 
 import Data.Text (Text)
@@ -29,5 +29,5 @@ class Monad m => MonadFileShow m where
   showPath :: Path -> m Text
   showFile :: File -> m Text
 
-class (MonadFileSave m c, MonadFileLoad m c, MonadFileDelete m, MonadFileShow m) => MonadFileStorage m c
+class (MonadFileSave m c, MonadFileLoad m c, MonadFileDelete m, MonadFileShow m) => MonadFileSystem m c
 

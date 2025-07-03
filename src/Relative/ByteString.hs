@@ -10,7 +10,7 @@ import System.FilePath ((</>), takeDirectory)
 import qualified Data.ByteString as BS
 
 import File (File(..))
-import FileStorage
+import FileSystem
 import Relative.Common
 import Relative.Instances ()
 
@@ -29,4 +29,4 @@ instance MonadFileLoad RelativeFS BS.ByteString where
     let relativePath = rootDir </> resolvePath file
     liftIO $ BS.readFile relativePath
 
-instance MonadFileStorage RelativeFS BS.ByteString
+instance MonadFileSystem RelativeFS BS.ByteString

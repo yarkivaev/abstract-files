@@ -13,7 +13,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 import File (File(..))
-import FileStorage
+import FileSystem
 import Relative.Common
 import Relative.Instances ()
 
@@ -33,4 +33,4 @@ instance MonadFileLoad RelativeFS Text where
     liftIO $ TIO.readFile relativePath
 
 
-instance MonadFileStorage RelativeFS Text
+instance MonadFileSystem RelativeFS Text

@@ -11,7 +11,7 @@ import qualified Data.ByteString as BS
 import Data.Text (Text)
 
 import File (File(..), Path(..), Segment(..))
-import FileStorage
+import FileSystem
 import Relative.FileSystem
 
 spec :: Spec

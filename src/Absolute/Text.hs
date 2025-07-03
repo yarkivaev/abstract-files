@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 import File (File(..))
-import FileStorage
+import FileSystem
 import Absolute.Common
 import Absolute.Instances ()
 
@@ -28,4 +28,4 @@ instance MonadFileLoad AbsoluteFS Text where
     TIO.readFile absolutePath
 
 
-instance MonadFileStorage AbsoluteFS Text
+instance MonadFileSystem AbsoluteFS Text

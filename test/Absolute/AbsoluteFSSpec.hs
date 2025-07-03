@@ -12,7 +12,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import File (File(..), Path(..), Segment(..))
-import FileStorage
+import FileSystem
 import Absolute.FileSystem
 
 spec :: Spec

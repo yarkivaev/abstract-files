@@ -8,7 +8,7 @@ import System.FilePath ((</>), takeDirectory)
 import qualified Data.ByteString as BS
 
 import File (File(..))
-import FileStorage
+import FileSystem
 import Absolute.Common
 import Absolute.Instances ()
 
@@ -24,4 +24,4 @@ instance MonadFileLoad AbsoluteFS BS.ByteString where
     let absolutePath = "/" </> resolvePath file
     BS.readFile absolutePath
 
-instance MonadFileStorage AbsoluteFS BS.ByteString
+instance MonadFileSystem AbsoluteFS BS.ByteString

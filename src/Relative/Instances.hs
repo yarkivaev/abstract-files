@@ -12,7 +12,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import File (File(..), Path(..), Segment(..))
-import FileStorage
+import FileSystem
 import Relative.Common
 
 -- MonadFileDelete instance (shared between Text and ByteString)

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module FileStorageSpec (spec) where
+module FileSystemSpec (spec) where
 
 import Test.Hspec
 import System.IO.Temp (withSystemTempDirectory)
@@ -8,13 +8,13 @@ import System.Directory (doesFileExist)
 import Data.Text (Text)
 
 import File (File(..), Path(..), Segment(..))
-import FileStorage
+import FileSystem
 import Relative.FileSystem
 import Absolute.FileSystem
 
 spec :: Spec
 spec = do
-  describe "FileStorage" $ do
+  describe "FileSystem" $ do
     describe "RelativeFS" $ do
       it "can save and load text files" $ do
         withSystemTempDirectory "test" $ \tmpDir -> do

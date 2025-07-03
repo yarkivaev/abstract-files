@@ -31,7 +31,7 @@ library
       Absolute.Instances
       Absolute.Text
       File
-      FileStorage
+      FileSystem
       Relative.ByteString
       Relative.Common
       Relative.FileSystem
@@ -58,7 +58,7 @@ test-suite abstract-files-test
   other-modules:
       Absolute.AbsoluteFSSpec
       FileSpec
-      FileStorageSpec
+      FileSystemSpec
       Relative.RelativeFSSpec
       Paths_abstract_files
   hs-source-dirs:
